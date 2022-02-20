@@ -19,10 +19,11 @@ import { ScheduleModule } from '@nestjs/schedule';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const isProduction = configService.get('STAGE') === 'prod';
+        console.log(isProduction, 'isProduction');
         return {
-          ssl: isProduction,
+          ssl: true,
           extra: {
-            ssl: isProduction ? { rejectUnathorized: false } : null,
+            ssl: { rejectUnathorized: false },
           },
           autoLoadEntities: true,
           synchronize: true,
