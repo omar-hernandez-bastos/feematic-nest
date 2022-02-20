@@ -1,10 +1,10 @@
 {
-  "name": "nestjs-task-managment",
+  "name": "feematic-nestjs",
   "version": "0.0.1",
-  "description": "",
+  "description": "Feematic Backend",
   "author": "omarsro@gmail.com",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
