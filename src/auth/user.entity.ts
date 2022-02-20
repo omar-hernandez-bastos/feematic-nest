@@ -8,4 +8,6 @@ export class User {
   username: string;
   @Column()
   password: string;
+  // @OneToMany((_type) => Task, (task) => task.user, { eager: true })
+  // tasks: Task[];
 }
