@@ -7,6 +7,11 @@ import { CreateRateDto } from './dto/create-rate.dto';
 import { Rate } from './entities/rate.entity';
 import { RatesRepository } from './rates.repository';
 
+const isOldData = (date: Date) => {
+  const timeToCompare = new Date().getTime() + 1 * 1 * 5 * 60 * 1000;
+  return timeToCompare > date.getTime();
+};
+
 @Injectable()
 export class RatesService {
   private readonly logger = new Logger(RatesService.name);
@@ -19,8 +24,13 @@ export class RatesService {
     return this.ratesRepository.createRate(createRateDto);
   }
 
-  findLast(): Promise<Rate> {
-    return this.ratesRepository.findLast();
+  async findLast(): Promise<Rate> {
+    const rate = await this.ratesRepository.findLast();
+    this.logger.debug(JSON.stringify(rate));
+    if (isOldData(rate.createAt)) {
+      return rate;
+    }
+    return this.fetchRateAndSave();
   }
 
   @Cron(CronExpression.EVERY_4_HOURS)
@@ -36,7 +46,7 @@ export class RatesService {
         throw new HttpException(err.response.data, err.response.status);
       });
     const { VES, COP } = response.data.rates;
-    this.create({
+    return this.create({
       ves: VES,
       cop: COP,
     });
