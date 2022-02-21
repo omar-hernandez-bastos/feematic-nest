@@ -25,15 +25,17 @@ export class RatesService {
     const isOldData = (date: Date) => {
       const timeToCompare = new Date().getTime() - EVERY_6_HOURS;
       this.logger.debug(
-        `timeToCompare: ${timeToCompare}, CreateAt ${date.getTime()}`,
+        `timeToCompare: ${timeToCompare}, CreateAt ${date.getTime()}: ${
+          timeToCompare > date.getTime()
+        } `,
       );
       return timeToCompare > date.getTime();
     };
 
     if (isOldData(rate.createAt)) {
-      return rate;
+      return this.fetchRateAndSave();
     }
-    return this.fetchRateAndSave();
+    return rate;
   }
 
   async fetchRateAndSave() {
