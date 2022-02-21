@@ -1,16 +1,12 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRateDto } from './dto/create-rate.dto';
 import { Rate } from './entities/rate.entity';
 import { RatesRepository } from './rates.repository';
 
-const isOldData = (date: Date) => {
-  const timeToCompare = new Date().getTime() + 1 * 1 * 5 * 60 * 1000;
-  return timeToCompare > date.getTime();
-};
+const EVERY_6_HOURS = 1 * 1 * 1 * 60 * 1000;
 
 @Injectable()
 export class RatesService {
@@ -26,14 +22,20 @@ export class RatesService {
 
   async findLast(): Promise<Rate> {
     const rate = await this.ratesRepository.findLast();
-    this.logger.debug(JSON.stringify(rate));
+    const isOldData = (date: Date) => {
+      const timeToCompare = new Date().getTime() + EVERY_6_HOURS;
+      this.logger.debug(
+        `timeToCompare: ${timeToCompare}, CreateAt ${date.getTime()}`,
+      );
+      return timeToCompare > date.getTime();
+    };
+
     if (isOldData(rate.createAt)) {
       return rate;
     }
     return this.fetchRateAndSave();
   }
 
-  @Cron(CronExpression.EVERY_4_HOURS)
   async fetchRateAndSave() {
     this.logger.log('fetchRateAndSave');
     const OPEN_EXCHANCE_API = this.configService.get('OPEN_EXCHANCE_API');
