@@ -1,8 +1,8 @@
 import { IsNotEmpty } from 'class-validator';
 export class CreateRateDto {
   @IsNotEmpty()
-  ves: string;
+  ves: number;
 
   @IsNotEmpty()
-  cop: string;
+  cop: number;
 }

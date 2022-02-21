@@ -11,10 +11,10 @@ export class Rate {
   id: string;
 
   @Column()
-  cop: string;
+  cop: number;
 
   @Column()
-  ves: string;
+  ves: number;
 
   @CreateDateColumn()
   createAt: Date;
