@@ -24,15 +24,10 @@ export class RatesService {
     const rate = await this.ratesRepository.findLast();
     const isOldData = (date: Date) => {
       const timeToCompare = new Date().getTime() - EVERY_6_HOURS;
-      this.logger.debug(
-        `timeToCompare: ${timeToCompare}, CreateAt ${date.getTime()}: ${
-          timeToCompare > date.getTime()
-        } `,
-      );
       return timeToCompare > date.getTime();
     };
 
-    if (isOldData(rate.createAt)) {
+    if (!rate || isOldData(rate?.createAt)) {
       return this.fetchRateAndSave();
     }
     return rate;
