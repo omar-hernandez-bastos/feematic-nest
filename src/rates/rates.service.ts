@@ -46,8 +46,8 @@ export class RatesService {
       });
     const { VES, COP } = response.data.rates;
     return this.create({
-      ves: +VES,
-      cop: +COP,
+      ves: VES,
+      cop: COP,
     });
   }
 }
