@@ -6,7 +6,7 @@ import { CreateRateDto } from './dto/create-rate.dto';
 import { Rate } from './entities/rate.entity';
 import { RatesRepository } from './rates.repository';
 
-const EVERY_6_HOURS = 1 * 1 * 1 * 60 * 1000;
+const EVERY_6_HOURS = 1 * 6 * 60 * 60 * 1000;
 
 @Injectable()
 export class RatesService {
