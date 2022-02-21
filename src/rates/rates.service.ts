@@ -23,7 +23,7 @@ export class RatesService {
   async findLast(): Promise<Rate> {
     const rate = await this.ratesRepository.findLast();
     const isOldData = (date: Date) => {
-      const timeToCompare = new Date().getTime() + EVERY_6_HOURS;
+      const timeToCompare = new Date().getTime() - EVERY_6_HOURS;
       this.logger.debug(
         `timeToCompare: ${timeToCompare}, CreateAt ${date.getTime()}`,
       );
