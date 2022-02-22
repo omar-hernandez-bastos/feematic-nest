@@ -2,7 +2,7 @@ import {
   ConflictException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ERROR_CODE } from 'src/utils/errors-code';
+import { ERROR_CODE } from '../utils/errors-code';
 import { EntityRepository, Repository } from 'typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { User } from './user.entity';

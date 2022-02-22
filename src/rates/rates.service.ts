@@ -1,7 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import { firstValueFrom } from 'rxjs';
 import { CreateRateDto } from './dto/create-rate.dto';
 import { Rate } from './entities/rate.entity';
 import { RatesRepository } from './rates.repository';
@@ -21,33 +22,35 @@ export class RatesService {
   }
 
   async findLast(): Promise<Rate> {
-    const rate = await this.ratesRepository.findLast();
-    const isOldData = (date: Date) => {
-      const timeToCompare = new Date().getTime() - EVERY_6_HOURS;
-      return timeToCompare > date.getTime();
-    };
+    try {
+      const rate = await this.ratesRepository.findLast();
+      const isOldData = (date: Date) => {
+        const timeToCompare = new Date().getTime() - EVERY_6_HOURS;
+        return timeToCompare > date.getTime();
+      };
 
-    if (!rate || isOldData(rate?.createAt)) {
-      return this.fetchRateAndSave();
+      if (!rate || isOldData(rate?.createAt)) {
+        return this.fetchRateAndSave();
+      }
+      return rate;
+    } catch (error) {
+      throw new NotFoundException();
     }
-    return rate;
   }
 
   async fetchRateAndSave() {
     this.logger.log('fetchRateAndSave');
-    const OPEN_EXCHANCE_API = this.configService.get('OPEN_EXCHANCE_API');
-    const response = await this.httpService
-      .get(
-        `htps://openexchangerates.org/api/latest.json?app_id=${OPEN_EXCHANCE_API}`,
-      )
-      .toPromise()
-      .catch((err) => {
-        throw new HttpException(err.response.data, err.response.status);
+    try {
+      const OPEN_EXCHANGE_API = this.configService.get('OPEN_EXCHANGE_API');
+      const url = `htps://openexchangerates.org/api/latest.json?app_id=${OPEN_EXCHANGE_API}`;
+      const { data } = await firstValueFrom(this.httpService.get(url));
+      const { VES, COP } = data?.rates;
+      return this.create({
+        ves: VES,
+        cop: COP,
       });
-    const { VES, COP } = response.data.rates;
-    return this.create({
-      ves: VES,
-      cop: COP,
-    });
+    } catch (error) {
+      this.logger.error('fetchRateAndSave: Open Exchange is not available');
+    }
   }
 }
